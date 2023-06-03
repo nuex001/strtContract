@@ -1,0 +1,27 @@
+Arguments: 
+  /home/nuel/.nvm/versions/node/v18.15.0/bin/node /mnt/c/Users/EDE/AppData/Roaming/npm/node_modules/yarn/bin/yarn.js add hardhat
+
+PATH: 
+  /home/nuel/.vscode-server/bin/b3e4e68a0bc097f0ae7907b217c1119af9e03435/bin/remote-cli:/home/nuel/.nvm/versions/node/v18.15.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/mnt/c/Program Files/WindowsApps/CanonicalGroupLimited.Ubuntu_2204.1.8.0_x64__79rhkp1fndgsc:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Program Files (x86)/nodejs/:/mnt/c/Program Files/Git/cmd:/mnt/c/Users/EDE/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/EDE/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/EDE/AppData/Roaming/npm:/snap/bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.15.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: connect ECONNREFUSED 104.16.18.35:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1494:16)
+
+npm manifest: 
+  No manifest
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

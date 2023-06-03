@@ -1,0 +1,38 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/ERC20.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.17;\n\n// https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.0.0/contracts/token/ERC20/IERC20.sol\ninterface IERC20 {\n    function totalSupply() external view returns (uint256);\n\n    function balanceOf(address account) external view returns (uint256);\n\n    function transfer(address recipient, uint256 amount)\n        external\n        returns (bool);\n\n    function allowance(address owner, address spender)\n        external\n        view\n        returns (uint256);\n\n    function approve(address spender, uint256 amount) external returns (bool);\n\n    function transferFrom(\n        address sender,\n        address recipient,\n        uint256 amount\n    ) external returns (bool);\n\n    event Transfer(address indexed from, address indexed to, uint256 value);\n    event Approval(\n        address indexed owner,\n        address indexed spender,\n        uint256 value\n    );\n}\n"
+    },
+    "contracts/StrtM.sol": {
+      "content": "// SPDX-License-Identifier: MIT\n\npragma solidity ^0.8.8;\n// ERROR\nerror StrtM__titleExist();\nerror StrtM__spaceIsFull();\nerror StrtM__streamed();\nerror StrtM__bountyFinished();\nerror StrtM__totalStreamsEmpty();\nerror StrtM__EmptyInputs();\nerror StrtM__NotAuthorized();\n\ncontract StrtM {\n    address immutable i_owner;\n    mapping(address => uint256) private s_allocatedSpace;\n    mapping(address => uint256) private s_UserStorageSpace;\n    mapping(string => uint256) private s_totalamount;\n    mapping(string => uint256) private s_tokenAmountPerMusic;\n    mapping(string => uint256) private s_totalStreams;\n    mapping(string => mapping(address => bool)) private s_streams;\n    mapping(string => bool) private s_title;\n    uint256 public s_allocatedSpaceFundz;\n\n    // EVENTS\n    event musicCreated(\n        address indexed sender,\n        uint256 totalamount,\n        string indexed title\n    );\n    event bountyPaid(\n        address indexed reciver,\n        uint256 amount,\n        string indexed title\n    );\n    event allocatedSpaceFundz(address indexed from, uint256 amount);\n\n    constructor() {\n        i_owner = msg.sender;\n    }\n\n    // msg.sender\n    function createMusic(\n        string memory title,\n        uint256 totalStreams,\n        uint256 storageSpace\n    ) external payable {\n        uint256 newStorage = s_UserStorageSpace[msg.sender] + storageSpace;\n        if (\n            newStorage > s_allocatedSpace[msg.sender] &&\n            s_allocatedSpace[msg.sender] > 0\n        ) {\n            revert StrtM__spaceIsFull();\n        }\n        bytes memory stringarr = bytes(title);\n        if (\n            stringarr.length == 0 ||\n            msg.value < 0 ||\n            totalStreams < 0 ||\n            storageSpace < 0\n        ) {\n            revert StrtM__EmptyInputs();\n        }\n        if (s_title[title]) {\n            revert StrtM__titleExist();\n        }\n        // initailize\n        if (s_allocatedSpace[msg.sender] <= 0) {\n            s_allocatedSpace[msg.sender] = 20;\n        }\n        //\n        s_UserStorageSpace[msg.sender] = storageSpace;\n        s_totalamount[title] = msg.value;\n        s_totalStreams[title] = totalStreams;\n        s_title[title] = true;\n        s_UserStorageSpace[msg.sender] = newStorage;\n        s_tokenAmountPerMusic[title] = msg.value / totalStreams;\n        emit musicCreated(msg.sender, msg.value, title);\n    }\n\n    function claimBounty(string memory title) external {\n        if (s_streams[title][msg.sender]) {\n            revert StrtM__streamed();\n        }\n        if (s_totalamount[title] <= 0 || s_totalStreams[title] <= 0) {\n            //check if amount still exists, then it is still avaliable\n            revert StrtM__bountyFinished();\n        }\n        uint256 perAmount = s_tokenAmountPerMusic[title];\n        s_streams[title][msg.sender] = true;\n        s_totalamount[title] -= perAmount;\n        s_totalStreams[title] -= 1;\n        (bool success, ) = payable(msg.sender).call{value: perAmount}(\"\");\n        require(success, \"Sending Failed\");\n        emit bountyPaid(msg.sender, perAmount, title);\n    }\n\n    function increaseSpace() external payable {\n        uint256 amount = (msg.value / 1000000000000000000) * 20;\n        s_allocatedSpace[msg.sender] += amount;\n        s_allocatedSpaceFundz += amount;\n        emit allocatedSpaceFundz(msg.sender, msg.value);\n    }\n\n    function withdraw() external payable {\n        if (msg.sender != i_owner) {\n            revert StrtM__NotAuthorized();\n        }\n        uint256 amount = s_allocatedSpaceFundz;\n        s_allocatedSpaceFundz = 0;\n        (bool success, ) = payable(i_owner).call{value: amount}(\"\");\n        require(success, \"Sending Failed\");\n        emit allocatedSpaceFundz(i_owner, amount);\n    }\n\n    /*@GET */\n    function getAllocatedSpace() public view returns (uint256) {\n        return s_allocatedSpace[msg.sender];\n    }\n\n    function getTotalamount(string memory title) public view returns (uint256) {\n        return s_totalamount[title];\n    }\n\n    function getAmountPerMusic(\n        string memory title\n    ) public view returns (uint256) {\n        return s_tokenAmountPerMusic[title];\n    }\n\n    function getTotalStreams(\n        string memory title\n    ) public view returns (uint256) {\n        return s_totalStreams[title];\n    }\n\n    function getAllocatedSpaceFundz() public view returns (uint256) {\n        return s_allocatedSpaceFundz;\n    }\n\n    function checkifStreamed(string memory title) public view returns (bool) {\n        return s_streams[title][msg.sender];\n    }\n\n    function getOwner() public view returns (address) {\n        return i_owner;\n    }\n}\n\n// event transferred to contract successfully --music\n// event transferred to user successfully  --streamed\n// upgrade allocated space\n// withdraw s_allocatedSpaceFundz\n// so meaning we have to use the address from web3, since it is indexing only address\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
